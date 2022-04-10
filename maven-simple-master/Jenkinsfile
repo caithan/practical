@@ -1,1 +1,32 @@
 
+pipeline {
+    agent any
+
+    tools {
+        // Install the Maven version configured as "M3" and add it to the path.
+        maven "maven"
+    }
+
+    stages {
+        stage('Gitcheckout') {
+            steps {
+              checkout([$class: 'GitSCM', branches: [[name: '*/main']], extensions: [], userRemoteConfigs: [[credentialsId: 'mygit_cred', url: 'https://github.com/caithan/pipelineproject.git']]]) 
+            }
+        }
+        stage('build') {
+            steps {
+              bat 'mvn clean install -f maven-simple-master/pom.xml'
+            }
+        }
+        stage('codeQuality') {
+            steps {
+               bat 'mvn sonar:sonar -f maven-simple-master/pom.xml'             
+            }
+        }
+        stage('deploy') {
+            steps {
+            deploy adapters: [tomcat9(credentialsId: 'tomcat_cred', path: '', url: 'http://localhost:7000/manager/html')], contextPath: '/maven-simple-master', war: '**/*.war'
+            }
+        }
+    }
+}
