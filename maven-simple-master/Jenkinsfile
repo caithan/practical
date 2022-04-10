@@ -14,12 +14,12 @@ pipeline {
         }
         stage('build') {
             steps {
-              bat 'mvn clean install -f maven-simple-master/pom.xml'
+              bat 'mvn clean install '
             }
         }
         stage('codeQuality') {
             steps {
-               bat 'mvn sonar:sonar -f maven-simple-master/pom.xml'             
+               bat 'mvn sonar:sonar '             
             }
         }
         stage('deploy') {
